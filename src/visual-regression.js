@@ -1,17 +1,22 @@
 const fs = require('fs')
 
 const BlinkDiff = require('blink-diff')
-const FILE_DS_STORE = '.DS_Store'
-const championPath = 'screenshots/champion'
-const challengerPath = 'screenshots/challenger'
-const diffPath = 'screenshots/diff'
 
-function passesVisualRegression (imageFileName) {
+const {
+  OUTPUT_EXTENSION,
+  PATH_CHALLENGER,
+  PATH_CHAMPION,
+  PATH_DIFF
+} = require('../config/config.json')
+
+const outputExtensionLength = OUTPUT_EXTENSION.length
+
+const passesVisualRegression = (imageFileName) => {
   const diff = new BlinkDiff({
-    imageAPath: `${championPath}/${imageFileName}`,
-    imageBPath: `${challengerPath}/${imageFileName}`,
-    imageOutputPath: `${diffPath}/${imageFileName}`,
+    imageAPath: `${PATH_CHAMPION}/${imageFileName}`,
+    imageBPath: `${PATH_CHALLENGER}/${imageFileName}`,
     imageOutputLimit: BlinkDiff.OUTPUT_DIFFERENT,
+    imageOutputPath: `${PATH_DIFF}/${imageFileName}`,
     thresholdType: BlinkDiff.THRESHOLD_PERCENT,
     threshold: 0
   })
@@ -32,10 +37,13 @@ function passesVisualRegression (imageFileName) {
   )
 }
 
-function runVisualRegression () {
-  const championImages = fs.readdirSync(championPath).filter(f => f !== FILE_DS_STORE)
+const onlyExtensions = f => f.substr(-outputExtensionLength) === OUTPUT_EXTENSION
+
+const runVisualRegression = () => {
   const visualRegressionPromises = []
   const failedFiles = []
+  const championImages = fs.readdirSync(PATH_CHAMPION)
+    .filter(onlyExtensions)
 
   championImages.forEach(imageFileName => {
     visualRegressionPromises.push(passesVisualRegression(imageFileName))
