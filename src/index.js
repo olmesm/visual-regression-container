@@ -1,12 +1,17 @@
-const puppeteer = require('puppeteer');
+const { removePreviousRun } = require('./remove-previous-run')
+const { puppet } = require('./puppet')
+const { runVisualRegression } = require('./visual-regression.js')
 
-(async () => {
-  const browser = await puppeteer.launch({
-    executablePath: '/usr/bin/chromium-browser'
-  })
-  const page = await browser.newPage()
-  await page.goto('https://example.com')
-  await page.screenshot({ path: 'screenshots/example.png' })
+const { PATH_CHALLENGER, PATH_DIFF } = require('../config/config.json')
 
-  await browser.close()
-})()
+const run = async () => {
+  try {
+    await removePreviousRun(PATH_CHALLENGER)
+    await removePreviousRun(PATH_DIFF)
+
+    await puppet()
+    await runVisualRegression()
+  } catch (e) { console.log(e) }
+}
+
+run()
