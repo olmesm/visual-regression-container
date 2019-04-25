@@ -18,11 +18,16 @@ Runs visual regression tests inside a docker container. See [blink-diff] for mor
 - [ ] extend for pa11y
 
 ```sh
-# First Run
+# To Run for development
+sh scripts/run-local.sh
+
+# To Run for production
+#   First Run
+sh scripts/build.sh
+
+#   To Run
 sh scripts/run.sh
 
-# To Run
-sh scripts/run.sh
 ```
 
 <!-- Markdown References -->
