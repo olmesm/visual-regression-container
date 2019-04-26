@@ -30,7 +30,25 @@ sh scripts/run.sh
 
 ```
 
+## Runninng on mac
+
+Set `PATH_CHROMIUM` to the location of chromium browser
+
+## Webpack
+
+If serving from localhost and using webpack dev server, you'll need to add to your allowedHosts settings;
+
+```js
+{
+    ...
+    devServer: {
+        ...
+        allowedHosts: ['host.docker.internal']
+    }
+}
+```
 <!-- Markdown References -->
 
 [blink-diff]: https://github.com/yahoo/blink-diff
 [puppeteer]: https://github.com/GoogleChrome/puppeteer/
+https://kb.apify.com/overcoming-anti-scraping-protection/using-man-in-the-middle-proxy-to-intercept-requests-in-puppeteer
