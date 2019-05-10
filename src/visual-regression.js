@@ -1,78 +1,73 @@
-const fs = require('fs')
+const path = require('path')
 
-const BlinkDiff = require('blink-diff')
+const chalk = require('chalk')
+
+const { copyFiles } = require('./utils/copyFiles')
+const { notEmpty } = require('./utils/notEmpty')
+const { getUnique } = require('./utils/getUnique')
+const { hyphenList } = require('./utils/hyphenList')
+const { getFileList } = require('./utils/getFileList')
+const { passesVisualRegression } = require('./utils/passesVisualRegression')
 
 const {
-  OUTPUT_EXTENSION,
   PATH_CHALLENGER,
-  PATH_CHAMPION,
-  PATH_DIFF
+  PATH_CHAMPION
 } = require('../config/config.json')
 
-const outputExtensionLength = OUTPUT_EXTENSION.length
+const champions = getFileList(PATH_CHAMPION)
+const challengers = getFileList(PATH_CHALLENGER)
 
-const passesVisualRegression = (imageFileName) => {
-  const diff = new BlinkDiff({
-    imageAPath: `${PATH_CHAMPION}/${imageFileName}`,
-    imageBPath: `${PATH_CHALLENGER}/${imageFileName}`,
-    imageOutputLimit: BlinkDiff.OUTPUT_DIFFERENT,
-    imageOutputPath: `${PATH_DIFF}/${imageFileName}`,
-    thresholdType: BlinkDiff.THRESHOLD_PERCENT,
-    threshold: 0
-  })
+const noChallengers = getUnique(champions, challengers)
+const newChallengers = getUnique(challengers, champions)
+const validChampions = getUnique(champions, noChallengers)
 
-  return new Promise(
-    (resolve, reject) =>
-      diff.run((error, result) => {
-        if (error) {
-          return reject(error)
-        }
+const listToDiff = Promise.all(validChampions.map(passesVisualRegression))
 
-        if (diff.hasPassed(result.code)) {
-          return resolve({ passed: true })
-        }
+const runVisualRegression = async () => {
+  try {
+    const results = await listToDiff
 
-        return resolve({ passed: false, imageFileName })
-      })
-  )
-}
+    const failedList = results.filter(item => !item.passed)
 
-const onlyExtensions = f => f.substr(-outputExtensionLength) === OUTPUT_EXTENSION
+    if (notEmpty(newChallengers)) {
+      await Promise.all(newChallengers.map(challenger =>
+        copyFiles(path.join(PATH_CHALLENGER, challenger), path.join(PATH_CHAMPION, challenger))
+      ))
 
-const runVisualRegression = () => {
-  const visualRegressionPromises = []
-  const failedFiles = []
-  const championImages = fs.readdirSync(PATH_CHAMPION)
-    .filter(onlyExtensions)
-
-  championImages.forEach(imageFileName => {
-    visualRegressionPromises.push(passesVisualRegression(imageFileName))
-  })
-
-  Promise.all(visualRegressionPromises)
-    .then(values => {
-      values.forEach(value => {
-        if (value.passed === false) {
-          failedFiles.push(value.imageFileName)
-        }
-      })
-
-      if (failedFiles.length > 0) {
-        const failedFilesString = `\n - ${failedFiles.join('\n')}\n`
-
-        throw new Error(
-          `The following files have failed visual regression: ${failedFilesString}
-          If you wish to accept these changes please run:
-          npm run test:vr-approve`
+      console.log(
+        chalk.green(
+          `${chalk.bold('The following challengers did not exist and have been copied across:')}
+          ${hyphenList(newChallengers)}\n`
         )
-      }
+      )
+    }
 
-      console.log('Visual regression has passed.')
-    })
-    .catch(err => {
-      console.error(err)
-      process.exitCode = 1
-    })
+    if (notEmpty(noChallengers)) {
+      console.log(
+        chalk.yellow(
+          `${chalk.bold('The following files did not have a corresponding challenger:')}
+          ${hyphenList(noChallengers)}
+          ${chalk.bold('\nConsider removing these files\n')}`
+        )
+      )
+    }
+
+    if (notEmpty(failedList)) {
+      console.log(
+        chalk.red(
+          `${chalk.bold('The following files failed inspection:')}
+          ${hyphenList(failedList.map(i => i.imageFileName))}\n`
+        )
+      )
+    }
+
+    if (!notEmpty(failedList)) {
+      console.log(chalk.green('All passed!'))
+    }
+  } catch (err) {
+    console.trace(err)
+    process.exitCode = 1
+  }
 }
 
 exports.runVisualRegression = runVisualRegression

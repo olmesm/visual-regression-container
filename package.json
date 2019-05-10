@@ -1,10 +1,15 @@
 {
   "name": "visual-regression-container",
   "version": "1.0.0",
-  "description": "",
+  "description": "Visual Regression tool",
   "main": "index.js",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/olmesm/visual-regression-container.git"
+  },
   "dependencies": {
     "blink-diff": "^1.0.13",
+    "chalk": "^2.4.2",
     "puppeteer": "^1.11.0"
   },
   "devDependencies": {

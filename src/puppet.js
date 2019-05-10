@@ -9,35 +9,38 @@ const CHROMIUM_PATH = process.env.PATH_CHROMIUM || '/usr/bin/chromium-browser'
 const { VIEWPORT } = process.env
 
 const ssFunc = async ({ browser, url, pageViewport }) => {
-  let deviceType = 'default'
-  const page = await browser.newPage()
+  try {
+    let deviceType = 'default'
+    const page = await browser.newPage()
 
-  if (pageViewport) {
-    const { name, ...viewportOptions } = pageViewport
-    deviceType = name
+    if (pageViewport) {
+      const { name, ...viewportOptions } = pageViewport
+      deviceType = name
 
-    await page.setViewport(viewportOptions)
-  }
-
-  await page.setRequestInterception(true)
-  page.on('request', interceptedRequest => {
-    const requestUrl = interceptedRequest.url()
-    if (requestUrl.includes(LOCALHOST)) {
-      interceptedRequest.continue({ url: requestUrl.replace(LOCALHOST, DOCKER_LOCALHOST) })
-      return
+      await page.setViewport(viewportOptions)
     }
 
-    interceptedRequest.continue()
-  })
+    await page.setRequestInterception(true)
+    page.on('request', interceptedRequest => {
+      const requestUrl = interceptedRequest.url()
+      if (requestUrl.includes(LOCALHOST)) {
+        interceptedRequest.continue({ url: requestUrl.replace(LOCALHOST, DOCKER_LOCALHOST) })
+        return
+      }
 
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 90 * 10000 })
+      interceptedRequest.continue()
+    })
 
-  const safeUrlFileName = url.replace(/(http(s)*:\/\/)|\W/g, '_')
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 90 * 10000 })
+    await page.waitFor(1000)
 
-  await page.screenshot({
-    fullPage: true,
-    path: `${PATH_CHALLENGER}/${safeUrlFileName}--${deviceType}.${OUTPUT_EXTENSION}`
-  })
+    const safeUrlFileName = url.replace(/(http(s)*:\/\/)|\W/g, '_')
+
+    await page.screenshot({
+      fullPage: true,
+      path: `${PATH_CHALLENGER}/${safeUrlFileName}--${deviceType}.${OUTPUT_EXTENSION}`
+    })
+  } catch (e) { throw new Error(e) }
 }
 
 const selectViewport = viewport => {
@@ -58,6 +61,6 @@ exports.puppet = async (urlList) => {
 
     await browser.close()
   } catch (e) {
-    throw new Error(e)
+    throw new Error({ e })
   }
 }
