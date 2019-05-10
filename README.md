@@ -11,11 +11,9 @@ Runs visual regression tests inside a docker container. See [blink-diff] for mor
 - [blink-diff]
 - [puppeteer]
 
-## TODO
+## Todo List
 
-- [ ] parallelization
-- [ ] mapping of a JSON file into the docker image of URLs.
-- [ ] extend for pa11y
+Future that [here](./TODO.md)
 
 ## Running
 
@@ -60,4 +58,4 @@ If serving from localhost and using webpack dev server, you'll need to add to yo
 
 [blink-diff]: https://github.com/yahoo/blink-diff
 [puppeteer]: https://github.com/GoogleChrome/puppeteer/
-https://kb.apify.com/overcoming-anti-scraping-protection/using-man-in-the-middle-proxy-to-intercept-requests-in-puppeteer
+[xx_temporary]: https://kb.apify.com/overcoming-anti-scraping-protection/using-man-in-the-middle-proxy-to-intercept-requests-in-puppeteer
