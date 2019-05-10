@@ -1,3 +1,4 @@
 [
-  "http://localhost:8080/winter-wallet-2019?scenario=winter-wallet-not-created"
+  "http://localhost:8080/winter-wallet-2019?scenario=winter-wallet-not-created",
+  "http://localhost:8080/winter-wallet-2019"
 ]

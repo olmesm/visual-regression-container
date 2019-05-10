@@ -1,5 +1,7 @@
 #! /usr/bin/env sh
 
+sh ./scripts/build.sh
+
 docker run \
     -it --rm \
     -v $(pwd):/usr/app \

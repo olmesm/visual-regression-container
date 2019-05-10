@@ -17,17 +17,26 @@ Runs visual regression tests inside a docker container. See [blink-diff] for mor
 - [ ] mapping of a JSON file into the docker image of URLs.
 - [ ] extend for pa11y
 
+## Running
+
+This should be run in a docker container. The consistent environment will ensure rendered images are uniform across different machines.
+
+### Development
+
 ```sh
 # To Run for development
-sh scripts/run-local.sh
+sh scripts/run-dev.sh
+```
 
+### Production
+
+```sh
 # To Run for production
 #   First Run
 sh scripts/build.sh
 
-#   To Run
+# To Run
 sh scripts/run.sh
-
 ```
 
 ## Runninng on mac

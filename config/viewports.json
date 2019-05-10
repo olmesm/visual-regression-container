@@ -1,0 +1,28 @@
+[
+    {
+        "name": "iphone-5",
+        "isMobile": true,
+        "hasTouch": true,
+        "height": 568,
+        "width": 320
+    },
+    {
+        "name": "iphone-6",
+        "isMobile": true,
+        "hasTouch": true,
+        "height": 667,
+        "width": 375
+    },
+    {
+        "name": "ipad",
+        "isMobile": true,
+        "hasTouch": true,
+        "height": 1024,
+        "width": 768
+    },
+    {
+        "name": "desktop",
+        "height": 1080,
+        "width": 1920
+    }
+]
